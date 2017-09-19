@@ -57,13 +57,16 @@ def postView(postId):
     if len(posts) == 0 or len(posts) > 1:
         return render_template('404.html'), 404
     else:
-        return render_template('post.html', posts=posts)
+        return render_template('post.html', post=posts[0])
 
 @app.route('/add', methods=['POST', 'GET'])
 def login():
     if request.method == 'POST':
-        cursor = mysql.connect().cursor()
-        cursor.execute("INSERT INTO blog (title, content) values(%s, %s)", [equest.form['title'], equest.form['content']])
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO blog (title, content) values(%s, %s)", [request.form['title'], request.form['content']])
+        conn.commit()
+        conn.close()
         return redirect("./home", code=302)
     else:
         return render_template('add.html')
