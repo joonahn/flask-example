@@ -14,38 +14,46 @@ mysql.init_app(app)
 
 @app.route("/hello/")
 def hello(name=None):
-	return render_template('hello.html', name=name)
+    return render_template('hello.html', name=name)
 
 @app.route("/loadData")
 def loadData():
-	cursor = mysql.connect().cursor()
-	cursor.execute("select * from blog")
+    cursor = mysql.connect().cursor()
+    cursor.execute("select * from blog")
 
-	result = []
+    result = []
 
-	for row in cursor:
-		result.append(row)
+    for row in cursor:
+        result.append(row)
 
-	print (result)
-	return "load Test" + ''.join(str(e) for e in result)
+    print (result)
+    return "load Test" + ''.join(str(e) for e in result)
 
 
 @app.route("/home")
-def home():
-	cursor = mysql.connect().cursor()
-	cursor.execute("select * from blog")
+def homeView():
+    cursor = mysql.connect().cursor()
+    cursor.execute("select * from blog")
+    posts = []
+    for row in cursor:
+        post = {}
+        post['href'] = "./post/{}".format(row[0])
+        post["title"] = row[1]
+        post["content"] = row[2]
+        posts.append(post)
+    return render_template('home.html', posts=posts)
 
-	posts = []
+@app.route("/post/<postId>")
+def postView(postId):
+    cursor = mysql.connect().cursor()
+    cursor.execute("select * from blog where articleNumber=?", postId)
+    posts = []
+    for row in cursor:
+        post = {}
+        post["title"] = row[1]
+        post["content"] = row[2]
+        posts.append(post)
+    return render_template('post.html', posts=posts)
 
-	for row in cursor:
-		post = {}
-		post['href'] = "./{}".format(row[0])
-		post["title"] = row[1]
-		post["content"] = row[2]
-		posts.append(post)
-
-
-	return render_template('home.html', posts=posts)
-	
 if __name__ == "__main__":
-	app.run()
+    app.run()
