@@ -39,21 +39,25 @@ def homeView():
         post = {}
         post['href'] = "./post/{}".format(row[0])
         post["title"] = row[1]
-        post["content"] = row[2]
+        post["summary"] = row[2]
         posts.append(post)
     return render_template('home.html', posts=posts)
 
 @app.route("/post/<postId>")
 def postView(postId):
     cursor = mysql.connect().cursor()
-    cursor.execute("select * from blog where articleNumber=?", postId)
+    cursor.execute("select * from blog where articleNumber = %s", [postId])
     posts = []
     for row in cursor:
         post = {}
         post["title"] = row[1]
         post["content"] = row[2]
         posts.append(post)
-    return render_template('post.html', posts=posts)
+    
+    if len(posts) == 0 or len(posts) > 1:
+        return render_template('404.html'), 404
+    else:
+        return render_template('post.html', posts=posts)
 
 if __name__ == "__main__":
     app.run()
