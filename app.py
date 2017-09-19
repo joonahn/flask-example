@@ -1,5 +1,5 @@
 # hello.py
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from flaskext.mysql import MySQL
 
 app = Flask(__name__)
@@ -58,6 +58,15 @@ def postView(postId):
         return render_template('404.html'), 404
     else:
         return render_template('post.html', posts=posts)
+
+@app.route('/add', methods=['POST', 'GET'])
+def login():
+    if request.method == 'POST':
+        cursor = mysql.connect().cursor()
+        cursor.execute("INSERT INTO blog (title, content) values(%s, %s)", [equest.form['title'], equest.form['content']])
+        return redirect("./home", code=302)
+    else:
+        return render_template('add.html')
 
 if __name__ == "__main__":
     app.run()
